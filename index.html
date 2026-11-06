@@ -8,13 +8,31 @@
   * { box-sizing: border-box; }
   body {
     font-family: "Segoe UI", Arial, Helvetica, sans-serif;
-    background: #0b1120;
-    color: #e5e9f5;
+    background: #120a1c;
+    color: #f3ecfa;
     margin: 0;
-    padding: 30px 15px;
+    padding: 0 15px 30px;
   }
-  h1 { text-align: center; margin: 0 0 22px; font-size: 26px; }
+  h1 { text-align: center; margin: 0; font-size: 24px; color: #6BFF00; }
+
+  /* Gatito siempre visible: arriba en celular, a la izquierda en pantallas grandes */
+  .pagina { max-width: 1050px; margin: 0 auto; }
+  .lateral {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #120a1c;
+    padding: 14px 0 12px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #3a2552;
+  }
   .contenedor { max-width: 800px; margin: 0 auto; }
+  @media (min-width: 900px) {
+    .pagina { display: grid; grid-template-columns: 230px 1fr; gap: 30px; align-items: start; padding-top: 30px; }
+    .lateral { top: 30px; border-bottom: none; padding: 0; }
+    .contenedor { max-width: none; margin: 0; }
+    .lateral .gato svg { width: 200px; }
+  }
 
   /* Pestañas */
   .pestanas { display: flex; gap: 12px; margin-bottom: 20px; }
@@ -24,18 +42,18 @@
     font-size: 17px;
     font-weight: bold;
     border-radius: 10px;
-    border: 2px solid #6b9bff;
-    background: #0f172a;
-    color: #6b9bff;
+    border: 2px solid #9D00FF;
+    background: #1c1228;
+    color: #c77dff;
     cursor: pointer;
   }
-  .pestana.activa { background: #6b9bff; color: #0b1120; }
+  .pestana.activa { background: #9D00FF; color: #ffffff; }
 
   /* Panel */
   .panel {
     display: none;
-    background: #18213a;
-    border: 1px solid #2a3552;
+    background: #1c1228;
+    border: 1px solid #3a2552;
     border-radius: 12px;
     padding: 24px;
   }
@@ -48,15 +66,15 @@
     padding: 14px;
     font-size: 16px;
     font-family: inherit;
-    color: #e5e9f5;
-    background: #0d1426;
-    border: 1px solid #2a3552;
+    color: #f3ecfa;
+    background: #140c20;
+    border: 1px solid #3a2552;
     border-radius: 10px;
     resize: vertical;
   }
-  textarea:focus { outline: none; border-color: #6b9bff; }
-  textarea::placeholder { color: #6b7590; }
-  textarea[readonly] { min-height: 80px; background: #111a30; }
+  textarea:focus { outline: none; border-color: #6BFF00; }
+  textarea::placeholder { color: #8a7a9e; }
+  textarea[readonly] { min-height: 80px; background: #170e24; border-color: #5B8040; }
 
   .botones { display: flex; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
   button.accion, button.secundario {
@@ -66,15 +84,15 @@
     border-radius: 10px;
     cursor: pointer;
   }
-  button.accion { background: #6b9bff; color: #0b1120; border: 2px solid #6b9bff; }
-  button.secundario { background: #0f172a; color: #e5e9f5; border: 2px solid #2a3552; }
+  button.accion { background: #6BFF00; color: #120a1c; border: 2px solid #6BFF00; }
+  button.secundario { background: #1c1228; color: #f3ecfa; border: 2px solid #5B8040; }
   button:hover { filter: brightness(1.1); }
 
-  .error { color: #ff7b7b; font-size: 14px; margin-top: 12px; min-height: 18px; }
-  .ok { color: #6ee7a0; }
+  .error { color: #DE811D; font-size: 14px; margin-top: 12px; min-height: 18px; }
+  .ok { color: #6BFF00; }
 
   .gato { display: flex; justify-content: center; margin-bottom: 8px; }
-  .gato svg { width: 170px; height: auto; overflow: visible; }
+  .gato svg { width: 120px; height: auto; overflow: visible; }
   #gato g, #gato ellipse, #gato path { transform-box: fill-box; transform-origin: center; }
   #patas { transform: translateY(120px); transition: transform 0.35s ease; }
   .tapado #patas { transform: translateY(0); }
@@ -92,12 +110,14 @@
 </head>
 <body>
 
+<div class="pagina">
+<div class="lateral">
 <div class="gato">
   <svg id="gato" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="Gatito">
     <defs>
       <clipPath id="circulo"><circle cx="100" cy="100" r="96"/></clipPath>
     </defs>
-    <circle cx="100" cy="100" r="96" fill="#ede7f6"/>
+    <circle cx="100" cy="100" r="96" fill="#f1dcff"/>
     <g clip-path="url(#circulo)">
       <!-- Cuerpo y mancha blanca del pecho -->
       <ellipse cx="100" cy="212" rx="72" ry="62" fill="#1b1b1b"/>
@@ -113,7 +133,7 @@
       <ellipse cx="100" cy="105" rx="62" ry="52" fill="#1b1b1b"/>
       <!-- Ojos -->
       <g class="ojo">
-        <ellipse cx="78" cy="100" rx="14" ry="15" fill="#d4e157"/>
+        <ellipse cx="78" cy="100" rx="14" ry="15" fill="#6BFF00"/>
         <g id="pupilaIzq">
           <ellipse class="pupila-normal" cx="78" cy="100" rx="4.5" ry="10" fill="#111"/>
           <g class="pupila-sorpresa">
@@ -123,7 +143,7 @@
         </g>
       </g>
       <g class="ojo">
-        <ellipse cx="122" cy="100" rx="14" ry="15" fill="#d4e157"/>
+        <ellipse cx="122" cy="100" rx="14" ry="15" fill="#6BFF00"/>
         <g id="pupilaDer">
           <ellipse class="pupila-normal" cx="122" cy="100" rx="4.5" ry="10" fill="#111"/>
           <g class="pupila-sorpresa">
@@ -133,7 +153,7 @@
         </g>
       </g>
       <!-- Nariz y boca -->
-      <polygon points="94,120 106,120 100,127" fill="#f4a7b9"/>
+      <polygon points="94,120 106,120 100,127" fill="#DE811D"/>
       <path class="boca-normal" d="M100 127 q-6 8 -13 3 M100 127 q6 8 13 3" stroke="#bbb" stroke-width="2" fill="none" stroke-linecap="round"/>
       <ellipse class="boca-o" cx="100" cy="137" rx="5" ry="7" fill="#f4a7b9" stroke="#bbb" stroke-width="1.5"/>
       <!-- Bigotes -->
@@ -154,11 +174,12 @@
         </g>
       </g>
     </g>
-    <circle cx="100" cy="100" r="96" fill="none" stroke="#6b9bff" stroke-width="4"/>
+    <circle cx="100" cy="100" r="96" fill="none" stroke="#9D00FF" stroke-width="5"/>
   </svg>
 </div>
 
 <h1>Encriptador</h1>
+</div>
 
 <div class="contenedor">
 
@@ -203,6 +224,7 @@
     <div class="error" id="mensajeDesencriptar"></div>
   </div>
 
+</div>
 </div>
 
 <script>
