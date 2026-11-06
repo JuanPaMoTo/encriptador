@@ -51,9 +51,35 @@
   button:hover { opacity: 0.9; }
   .error { color: #c00; font-size: 14px; margin-top: 8px; min-height: 18px; }
   .ok { color: #15803d; }
+  .gato { display: flex; justify-content: center; margin-bottom: 5px; }
+  .gato svg { width: 160px; height: auto; }
 </style>
 </head>
 <body>
+
+<div class="gato">
+  <svg id="gato" viewBox="0 0 200 170" xmlns="http://www.w3.org/2000/svg" aria-label="Gatito">
+    <!-- Orejas -->
+    <polygon points="28,75 40,8 92,48" fill="#f2a65a"/>
+    <polygon points="172,75 160,8 108,48" fill="#f2a65a"/>
+    <polygon points="40,62 46,26 76,50" fill="#f7c6c7"/>
+    <polygon points="160,62 154,26 124,50" fill="#f7c6c7"/>
+    <!-- Cabeza -->
+    <ellipse cx="100" cy="100" rx="80" ry="66" fill="#f2a65a"/>
+    <!-- Rayas -->
+    <path d="M100 36 v18 M86 40 l4 14 M114 40 l-4 14" stroke="#d9873d" stroke-width="5" stroke-linecap="round"/>
+    <!-- Ojos -->
+    <ellipse cx="70" cy="92" rx="20" ry="22" fill="#fff"/>
+    <ellipse cx="130" cy="92" rx="20" ry="22" fill="#fff"/>
+    <circle id="pupilaIzq" cx="70" cy="92" r="10" fill="#222"/>
+    <circle id="pupilaDer" cx="130" cy="92" r="10" fill="#222"/>
+    <!-- Nariz y boca -->
+    <polygon points="92,120 108,120 100,129" fill="#e57399"/>
+    <path d="M100 129 q-8 10 -16 4 M100 129 q8 10 16 4" stroke="#333" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <!-- Bigotes -->
+    <path d="M60 122 h-42 M60 128 l-40 8 M140 122 h42 M140 128 l40 8" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+</div>
 
 <h1>Encriptador</h1>
 
@@ -249,6 +275,27 @@ function copiaAlternativa(campo, exito) {
   document.execCommand("copy");
   exito();
 }
+
+// ===== Gatito que sigue el cursor =====
+const gato = document.getElementById("gato");
+const pupilas = [
+  { el: document.getElementById("pupilaIzq"), x: 70, y: 92 },
+  { el: document.getElementById("pupilaDer"), x: 130, y: 92 }
+];
+function mirar(px, py) {
+  const caja = gato.getBoundingClientRect();
+  const escala = caja.width / 200;
+  for (const p of pupilas) {
+    const ox = caja.left + p.x * escala;
+    const oy = caja.top + p.y * escala;
+    const ang = Math.atan2(py - oy, px - ox);
+    const dist = Math.min(9, Math.hypot(px - ox, py - oy) / 15);
+    p.el.setAttribute("cx", p.x + Math.cos(ang) * dist);
+    p.el.setAttribute("cy", p.y + Math.sin(ang) * dist);
+  }
+}
+document.addEventListener("mousemove", e => mirar(e.clientX, e.clientY));
+document.addEventListener("touchmove", e => mirar(e.touches[0].clientX, e.touches[0].clientY));
 
 // Enter también ejecuta la acción
 document.getElementById("textoEncriptar").addEventListener("keydown", e => {
