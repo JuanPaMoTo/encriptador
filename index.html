@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Encriptador</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f2f4f7;
+    margin: 0;
+    padding: 30px 15px;
+    color: #222;
+  }
+  h1 { text-align: center; margin: 0 0 25px; }
+  .contenedor {
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .tarjeta {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  .tarjeta h2 { margin: 0 0 12px; font-size: 20px; }
+  label { display: block; font-size: 14px; margin: 10px 0 5px; }
+  input {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+  }
+  input[readonly] { background: #f7f7f7; }
+  .botones { display: flex; gap: 10px; margin-top: 12px; }
+  button {
+    padding: 10px 18px;
+    font-size: 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    background: #2563eb;
+    color: #fff;
+  }
+  button.secundario { background: #6b7280; }
+  button:hover { opacity: 0.9; }
+  .error { color: #c00; font-size: 14px; margin-top: 8px; min-height: 18px; }
+  .ok { color: #15803d; }
+</style>
+</head>
+<body>
+
+<h1>Encriptador</h1>
+
+<div class="contenedor">
+
+  <!-- ENCRIPTAR -->
+  <div class="tarjeta">
+    <h2>Encriptar</h2>
+    <label for="textoEncriptar">Palabra</label>
+    <input type="text" id="textoEncriptar" placeholder="Ej: JuanPablo007">
+    <div class="botones">
+      <button onclick="accionEncriptar()">Encriptar</button>
+    </div>
+    <label for="resultadoEncriptar">Resultado</label>
+    <input type="text" id="resultadoEncriptar" readonly>
+    <div class="botones">
+      <button class="secundario" onclick="copiar('resultadoEncriptar', 'errorEncriptar')">Copiar</button>
+    </div>
+    <div class="error" id="errorEncriptar"></div>
+  </div>
+
+  <!-- DESENCRIPTAR -->
+  <div class="tarjeta">
+    <h2>Desencriptar</h2>
+    <label for="textoDesencriptar">Texto encriptado</label>
+    <input type="text" id="textoDesencriptar" placeholder="Pega aquí el texto encriptado">
+    <div class="botones">
+      <button onclick="accionDesencriptar()">Desencriptar</button>
+    </div>
+    <label for="resultadoDesencriptar">Resultado</label>
+    <input type="text" id="resultadoDesencriptar" readonly>
+    <div class="botones">
+      <button class="secundario" onclick="copiar('resultadoDesencriptar', 'errorDesencriptar')">Copiar</button>
+    </div>
+    <div class="error" id="errorDesencriptar"></div>
+  </div>
+
+</div>
+
+<script>
+// ===== Lista de caracteres (64) =====
+// Primero la clave "cAsoPerU14", luego el resto en orden normal
+// (A-Z con Ñ, a-z con ñ, 0-9) sin repetir los que ya están en la clave.
+const CLAVE = "cAsoPerU14";
+const NORMAL = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ" +
+               "abcdefghijklmnñopqrstuvwxyz" +
+               "0123456789";
+
+let caracteres = CLAVE;
+for (const ch of NORMAL) {
+  if (!caracteres.includes(ch)) caracteres += ch;
+}
+// caracteres[0] tiene la posición 1, caracteres[1] la posición 2, etc.
+
+// ===== Tabla del paso 2 (número -> letra) =====
+const DIGITO_A_LETRA = ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"];
+
+// ===== ENCRIPTAR =====
+function encriptar(texto) {
+  if (texto.length === 0) {
+    throw new Error("Escribe una palabra para encriptar.");
+  }
+
+  // Revisar caracteres no permitidos
+  const invalidos = [];
+  for (const ch of texto) {
+    if (!caracteres.includes(ch) && !invalidos.includes(ch)) {
+      invalidos.push(ch);
+    }
+  }
+  if (invalidos.length > 0) {
+    const lista = invalidos.map(c => c === " " ? "(espacio)" : '"' + c + '"').join(", ");
+    throw new Error("Caracteres no permitidos: " + lista +
+      ". Solo se aceptan letras (A-Z, a-z, incluida la ñ) y números (0-9).");
+  }
+
+  // Paso 1: posición -> posición x posición -> 4 cifras
+  const bloques = [];
+  for (const ch of texto) {
+    const posicion = caracteres.indexOf(ch) + 1;
+    const cuadrado = posicion * posicion;
+    bloques.push(String(cuadrado).padStart(4, "0"));
+  }
+  const paso1 = bloques.join(" ");
+
+  // Paso 2: cada dígito -> letra
+  let paso2 = "";
+  for (const d of bloques.join("")) {
+    paso2 += DIGITO_A_LETRA[Number(d)];
+  }
+
+  return { paso1, paso2 };
+}
+
+// ===== DESENCRIPTAR =====
+function desencriptar(texto) {
+  texto = texto.trim();
+  if (texto.length === 0) {
+    throw new Error("Pega un texto encriptado para desencriptar.");
+  }
+
+  // Paso 2 inverso: letra -> dígito
+  let digitos = "";
+  const invalidos = [];
+  for (const ch of texto) {
+    const d = DIGITO_A_LETRA.indexOf(ch);
+    if (d === -1) {
+      if (!invalidos.includes(ch)) invalidos.push(ch);
+    } else {
+      digitos += d;
+    }
+  }
+  if (invalidos.length > 0) {
+    const lista = invalidos.map(c => c === " " ? "(espacio)" : '"' + c + '"').join(", ");
+    throw new Error("Caracteres no válidos: " + lista +
+      ". Un texto encriptado solo contiene las letras q w e r t y u i o p.");
+  }
+
+  if (digitos.length % 4 !== 0) {
+    throw new Error("El texto está incompleto: su largo debe ser múltiplo de 4.");
+  }
+
+  // Paso 1 inverso: bloques de 4 -> raíz -> carácter
+  const bloques = [];
+  let resultado = "";
+  for (let i = 0; i < digitos.length; i += 4) {
+    const bloque = digitos.substring(i, i + 4);
+    bloques.push(bloque);
+    const numero = Number(bloque);
+    const raiz = Math.round(Math.sqrt(numero));
+    if (raiz * raiz !== numero || raiz < 1 || raiz > caracteres.length) {
+      throw new Error("El bloque " + bloque + " no corresponde a ningún carácter. " +
+        "Revisa que el texto esté bien copiado.");
+    }
+    resultado += caracteres[raiz - 1];
+  }
+
+  return { paso1: bloques.join(" "), resultado };
+}
+
+// ===== Botones =====
+function accionEncriptar() {
+  const entrada = document.getElementById("textoEncriptar").value;
+  const salida = document.getElementById("resultadoEncriptar");
+  const error = document.getElementById("errorEncriptar");
+  error.className = "error";
+  try {
+    const r = encriptar(entrada);
+    salida.value = r.paso2;
+    error.textContent = "";
+  } catch (e) {
+    salida.value = "";
+    error.textContent = e.message;
+  }
+}
+
+function accionDesencriptar() {
+  const entrada = document.getElementById("textoDesencriptar").value;
+  const salida = document.getElementById("resultadoDesencriptar");
+  const error = document.getElementById("errorDesencriptar");
+  error.className = "error";
+  try {
+    const r = desencriptar(entrada);
+    salida.value = r.resultado;
+    error.textContent = "";
+  } catch (e) {
+    salida.value = "";
+    error.textContent = e.message;
+  }
+}
+
+function copiar(idCampo, idMensaje) {
+  const campo = document.getElementById(idCampo);
+  const mensaje = document.getElementById(idMensaje);
+  if (campo.value === "") {
+    mensaje.className = "error";
+    mensaje.textContent = "No hay nada que copiar todavía.";
+    return;
+  }
+  const exito = () => {
+    mensaje.className = "error ok";
+    mensaje.textContent = "Copiado.";
+  };
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(campo.value).then(exito).catch(() => copiaAlternativa(campo, exito));
+  } else {
+    copiaAlternativa(campo, exito);
+  }
+}
+
+function copiaAlternativa(campo, exito) {
+  campo.select();
+  document.execCommand("copy");
+  exito();
+}
+
+// Enter también ejecuta la acción
+document.getElementById("textoEncriptar").addEventListener("keydown", e => {
+  if (e.key === "Enter") accionEncriptar();
+});
+document.getElementById("textoDesencriptar").addEventListener("keydown", e => {
+  if (e.key === "Enter") accionDesencriptar();
+});
+</script>
+
+</body>
+</html>
