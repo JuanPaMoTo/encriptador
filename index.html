@@ -7,50 +7,72 @@
 <style>
   * { box-sizing: border-box; }
   body {
-    font-family: Arial, Helvetica, sans-serif;
-    background: #f2f4f7;
+    font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+    background: #0b1120;
+    color: #e5e9f5;
     margin: 0;
     padding: 30px 15px;
-    color: #222;
   }
-  h1 { text-align: center; margin: 0 0 25px; }
-  .contenedor {
-    max-width: 600px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-  .tarjeta {
-    background: #fff;
+  h1 { text-align: center; margin: 0 0 22px; font-size: 26px; }
+  .contenedor { max-width: 800px; margin: 0 auto; }
+
+  /* Pestañas */
+  .pestanas { display: flex; gap: 12px; margin-bottom: 20px; }
+  .pestana {
+    flex: 1;
+    padding: 16px;
+    font-size: 17px;
+    font-weight: bold;
     border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  }
-  .tarjeta h2 { margin: 0 0 12px; font-size: 20px; }
-  label { display: block; font-size: 14px; margin: 10px 0 5px; }
-  input {
-    width: 100%;
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-  }
-  input[readonly] { background: #f7f7f7; }
-  .botones { display: flex; gap: 10px; margin-top: 12px; }
-  button {
-    padding: 10px 18px;
-    font-size: 15px;
-    border: none;
-    border-radius: 6px;
+    border: 2px solid #6b9bff;
+    background: #0f172a;
+    color: #6b9bff;
     cursor: pointer;
-    background: #2563eb;
-    color: #fff;
   }
-  button.secundario { background: #6b7280; }
-  button:hover { opacity: 0.9; }
-  .error { color: #c00; font-size: 14px; margin-top: 8px; min-height: 18px; }
-  .ok { color: #15803d; }
+  .pestana.activa { background: #6b9bff; color: #0b1120; }
+
+  /* Panel */
+  .panel {
+    display: none;
+    background: #18213a;
+    border: 1px solid #2a3552;
+    border-radius: 12px;
+    padding: 24px;
+  }
+  .panel.visible { display: block; }
+  label { display: block; font-size: 16px; margin: 0 0 10px; }
+  label.segunda { margin-top: 22px; }
+  textarea {
+    width: 100%;
+    min-height: 110px;
+    padding: 14px;
+    font-size: 16px;
+    font-family: inherit;
+    color: #e5e9f5;
+    background: #0d1426;
+    border: 1px solid #2a3552;
+    border-radius: 10px;
+    resize: vertical;
+  }
+  textarea:focus { outline: none; border-color: #6b9bff; }
+  textarea::placeholder { color: #6b7590; }
+  textarea[readonly] { min-height: 80px; background: #111a30; }
+
+  .botones { display: flex; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
+  button.accion, button.secundario {
+    padding: 14px 24px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  button.accion { background: #6b9bff; color: #0b1120; border: 2px solid #6b9bff; }
+  button.secundario { background: #0f172a; color: #e5e9f5; border: 2px solid #2a3552; }
+  button:hover { filter: brightness(1.1); }
+
+  .error { color: #ff7b7b; font-size: 14px; margin-top: 12px; min-height: 18px; }
+  .ok { color: #6ee7a0; }
+
   .gato { display: flex; justify-content: center; margin-bottom: 8px; }
   .gato svg { width: 170px; height: auto; overflow: visible; }
   #gato g, #gato ellipse, #gato path { transform-box: fill-box; transform-origin: center; }
@@ -132,7 +154,7 @@
         </g>
       </g>
     </g>
-    <circle cx="100" cy="100" r="96" fill="none" stroke="#7c6fd6" stroke-width="4"/>
+    <circle cx="100" cy="100" r="96" fill="none" stroke="#6b9bff" stroke-width="4"/>
   </svg>
 </div>
 
@@ -140,36 +162,45 @@
 
 <div class="contenedor">
 
+  <div class="pestanas">
+    <button class="pestana activa" id="pestanaEncriptar" onclick="mostrar('encriptar')">Encriptar</button>
+    <button class="pestana" id="pestanaDesencriptar" onclick="mostrar('desencriptar')">Desencriptar</button>
+  </div>
+
   <!-- ENCRIPTAR -->
-  <div class="tarjeta">
-    <h2>Encriptar</h2>
+  <div class="panel visible" id="panelEncriptar">
     <label for="textoEncriptar">Palabra</label>
-    <input type="text" id="textoEncriptar" placeholder="Ej: Bizcocho">
+    <textarea id="textoEncriptar" placeholder="Escribe aquí, por ejemplo: Bizcocho"></textarea>
     <div class="botones">
-      <button onclick="accionEncriptar()">Encriptar</button>
-    </div>
-    <label for="resultadoEncriptar">Resultado</label>
-    <input type="text" id="resultadoEncriptar" readonly>
-    <div class="botones">
-      <button class="secundario" onclick="copiar('resultadoEncriptar', 'errorEncriptar')">Copiar</button>
+      <button class="accion" onclick="accionEncriptar()">Encriptar</button>
+      <button class="secundario" onclick="limpiar('Encriptar')">Limpiar</button>
     </div>
     <div class="error" id="errorEncriptar"></div>
+
+    <label class="segunda" for="resultadoEncriptar">Resultado</label>
+    <textarea id="resultadoEncriptar" readonly></textarea>
+    <div class="botones">
+      <button class="secundario" onclick="copiar('resultadoEncriptar', 'mensajeEncriptar')">Copiar</button>
+    </div>
+    <div class="error" id="mensajeEncriptar"></div>
   </div>
 
   <!-- DESENCRIPTAR -->
-  <div class="tarjeta">
-    <h2>Desencriptar</h2>
+  <div class="panel" id="panelDesencriptar">
     <label for="textoDesencriptar">Texto encriptado</label>
-    <input type="text" id="textoDesencriptar" placeholder="Pega aquí el texto encriptado">
+    <textarea id="textoDesencriptar" placeholder="Pega aquí, por ejemplo: qwewwuowrwruqqqwqqwuqqqwwuqqqqwu"></textarea>
     <div class="botones">
-      <button onclick="accionDesencriptar()">Desencriptar</button>
-    </div>
-    <label for="resultadoDesencriptar">Resultado</label>
-    <input type="text" id="resultadoDesencriptar" readonly>
-    <div class="botones">
-      <button class="secundario" onclick="copiar('resultadoDesencriptar', 'errorDesencriptar')">Copiar</button>
+      <button class="accion" onclick="accionDesencriptar()">Desencriptar</button>
+      <button class="secundario" onclick="limpiar('Desencriptar')">Limpiar</button>
     </div>
     <div class="error" id="errorDesencriptar"></div>
+
+    <label class="segunda" for="resultadoDesencriptar">Resultado</label>
+    <textarea id="resultadoDesencriptar" readonly></textarea>
+    <div class="botones">
+      <button class="secundario" onclick="copiar('resultadoDesencriptar', 'mensajeDesencriptar')">Copiar</button>
+    </div>
+    <div class="error" id="mensajeDesencriptar"></div>
   </div>
 
 </div>
@@ -274,40 +305,42 @@ function desencriptar(texto) {
 
   return { paso1: bloques.join(" "), resultado };
 }
+// ===== Navegación entre pestañas =====
+function mostrar(seccion) {
+  const enc = seccion === "encriptar";
+  document.getElementById("panelEncriptar").classList.toggle("visible", enc);
+  document.getElementById("panelDesencriptar").classList.toggle("visible", !enc);
+  document.getElementById("pestanaEncriptar").classList.toggle("activa", enc);
+  document.getElementById("pestanaDesencriptar").classList.toggle("activa", !enc);
+  ponerEstado(null);
+}
 
 // ===== Botones =====
-function accionEncriptar() {
-  const entrada = document.getElementById("textoEncriptar").value;
-  const salida = document.getElementById("resultadoEncriptar");
-  const error = document.getElementById("errorEncriptar");
-  error.className = "error";
+function ejecutar(nombre, funcion, campoResultado) {
+  const entrada = document.getElementById("texto" + nombre);
+  const salida = document.getElementById("resultado" + nombre);
+  const error = document.getElementById("error" + nombre);
+  document.getElementById("mensaje" + nombre).textContent = "";
   try {
-    const r = encriptar(entrada);
-    salida.value = r.paso2;
+    const r = funcion(entrada.value);
+    salida.value = r[campoResultado];
     error.textContent = "";
-    document.getElementById("textoEncriptar").blur();
+    entrada.blur();
     ponerEstado("sorprendido");
   } catch (e) {
     salida.value = "";
     error.textContent = e.message;
   }
 }
+function accionEncriptar() { ejecutar("Encriptar", encriptar, "paso2"); }
+function accionDesencriptar() { ejecutar("Desencriptar", desencriptar, "resultado"); }
 
-function accionDesencriptar() {
-  const entrada = document.getElementById("textoDesencriptar").value;
-  const salida = document.getElementById("resultadoDesencriptar");
-  const error = document.getElementById("errorDesencriptar");
-  error.className = "error";
-  try {
-    const r = desencriptar(entrada);
-    salida.value = r.resultado;
-    error.textContent = "";
-    document.getElementById("textoDesencriptar").blur();
-    ponerEstado("sorprendido");
-  } catch (e) {
-    salida.value = "";
-    error.textContent = e.message;
-  }
+function limpiar(nombre) {
+  document.getElementById("texto" + nombre).value = "";
+  document.getElementById("resultado" + nombre).value = "";
+  document.getElementById("error" + nombre).textContent = "";
+  document.getElementById("mensaje" + nombre).textContent = "";
+  ponerEstado(null);
 }
 
 function copiar(idCampo, idMensaje) {
@@ -377,12 +410,12 @@ for (const id of ["textoEncriptar", "textoDesencriptar"]) {
   });
 }
 
-// Enter también ejecuta la acción
+// Enter ejecuta la acción (Shift + Enter no hace nada especial)
 document.getElementById("textoEncriptar").addEventListener("keydown", e => {
-  if (e.key === "Enter") accionEncriptar();
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); accionEncriptar(); }
 });
 document.getElementById("textoDesencriptar").addEventListener("keydown", e => {
-  if (e.key === "Enter") accionDesencriptar();
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); accionDesencriptar(); }
 });
 </script>
 
